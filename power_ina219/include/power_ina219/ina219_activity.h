@@ -7,6 +7,7 @@
 #include <cstring>
 #include <sys/ioctl.h>
 #include <fcntl.h>
+#include <byteswap.h>
 
 #include <std_msgs/Float32.h>
 #include <std_msgs/Int32.h>
@@ -95,16 +96,16 @@ class INA219Activity {
     int param_rate;
     int param_calibration;
     double param_rshunt;
-    bool param_publish_bus_voltage;
-    bool param_publish_shunt_voltage;
+    bool param_publish_voltage_bus;
+    bool param_publish_voltage_shunt;
     bool param_publish_power;
     bool param_publish_current;
 
     // ROS publishers
 
     // ROS subscribers
-    ros::Publisher pub_bus_voltage;
-    ros::Publisher pub_shunt_voltage;
+    ros::Publisher pub_voltage_bus;
+    ros::Publisher pub_voltage_shunt;
     ros::Publisher pub_power;
     ros::Publisher pub_current;
 

@@ -50,7 +50,10 @@ int main(int argc, char *argv[]) {
         return -4;
     }
 
-    ros::Rate rate(100);
+    int param_rate;
+    nh_priv->param("rate", param_rate, (int)10);
+
+    ros::Rate rate(param_rate);
     while(ros::ok()) {
         rate.sleep();
         activity->spinOnce();
