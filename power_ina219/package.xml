@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>pwm_pca9685</name>
+  <name>power_ina219</name>
   <version>1.0.0</version>
-  <description>I2C driver for a BNO055 IMU. Tested on Jetson TX2.</description>
+  <description>I2C driver for a INA219 power monitor.</description>
   <maintainer email="dheera@dheera.net">dheera</maintainer>
   <license>MIT</license>
   <buildtool_depend>catkin</buildtool_depend>
