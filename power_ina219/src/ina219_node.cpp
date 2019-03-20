@@ -1,4 +1,4 @@
-/* power_ina219_i2c_node.cpp
+/* ina219_node.cpp
  * Author: Dheera Venkatraman <dheera@dheera.net>
  *
  * Instantiates a INA219 Activity class, as well as
@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
 
     power_ina219::INA219Activity* activity = NULL;
 
-    ros::init(argc, argv, "power_ina219_i2c_node");
+    ros::init(argc, argv, "ina219_node");
 
     nh = new ros::NodeHandle();
     if(!nh) {

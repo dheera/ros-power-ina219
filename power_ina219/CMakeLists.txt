@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(pwm_pca9685)
+project(power_ina219)
 
 add_compile_options(-std=c++11 -li2c)
 
@@ -9,13 +9,13 @@ catkin_package(INCLUDE_DIRS include)
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-add_executable(pwm_pca9685_node src/pca9685_activity.cpp src/pwm_pca9685_node.cpp)
+add_executable(ina219_node src/ina219_activity.cpp src/ina219_node.cpp)
 
 include_directories(${catkin_INCLUDE_DIRS})
 
-target_link_libraries(pwm_pca9685_node ${catkin_LIBRARIES})
+target_link_libraries(ina219_node ${catkin_LIBRARIES})
 
-install(TARGETS pwm_pca9685_node
+install(TARGETS ina219_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
