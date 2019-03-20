@@ -25,7 +25,7 @@ INA219Activity::INA219Activity(ros::NodeHandle &_nh, ros::NodeHandle &_nh_priv) 
     nh_priv.param("calibration", param_calibration, (int)4096);
     nh_priv.param("rshunt", param_rshunt, (double)0.1);
 
-    current_lsb = 0.04096 / (calibration * param_rshunt); // from page 12 of INA219 datasheet
+    current_lsb = 0.04096 / (param_calibration * param_rshunt); // from page 12 of INA219 datasheet
     power_lsb = 20 * current_lsb; // from page 12 of INA219 datasheet
 }
 
@@ -53,13 +53,13 @@ bool INA219Activity::start() {
     ROS_INFO("starting");
 
     if(!pub_shunt_voltage && param_publish_shunt_voltage)
-        pub_shunt_voltage = nh.advertise("pub_shunt_voltage", 1, &INA219Activity::onCommand, this);
+        pub_shunt_voltage = nh.advertise<std_msgs::Float32>("pub_shunt_voltage", 1);
     if(!pub_bus_voltage && param_publish_bus_voltage)
-        ...
+        pub_bus_voltage = nh.advertise<std_msgs::Float32>("pub_bus_voltage", 1);
     if(!pub_power && param_publish_power)
-        ...
+        pub_power = nh.advertise<std_msgs::Float32>("pub_power", 1);
     if(!pub_current && param_publish_current)
-        ...
+        pub_current = nh.advertise<std_msgs::Float32>("pub_current", 1);
 
     file = open(param_device.c_str(), O_RDWR);
     if(ioctl(file, I2C_SLAVE, param_address) < 0) {
@@ -88,7 +88,7 @@ bool INA219Activity::spinOnce() {
 
     if(pub_shunt_voltage) {
         std_msgs::Float32 msg_bus_voltage;
-        msg_bus_voltage.data = (double)(_i2c_smbus_read_word_data(file, INA219_REG_BUS_VOLTAGE) >>> 3) * 0.001;
+        msg_bus_voltage.data = (double)(_i2c_smbus_read_word_data(file, INA219_REG_BUS_VOLTAGE) >> 3) * 0.001;
         pub_shunt_voltage.publish(msg_bus_voltage);
     }
 
