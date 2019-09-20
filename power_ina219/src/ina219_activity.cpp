@@ -20,7 +20,6 @@ INA219Activity::INA219Activity(ros::NodeHandle &_nh, ros::NodeHandle &_nh_priv) 
     nh_priv.param("publish_voltage_bus", param_publish_voltage_bus, (bool)true);
     nh_priv.param("publish_power", param_publish_power, (bool)false);
     nh_priv.param("publish_current", param_publish_current, (bool)true);
-    nh_priv.param("frame_id", param_frame_id, (std::string)"imu");
     nh_priv.param("calibration", param_calibration, (int)4096);
     nh_priv.param("rshunt", param_rshunt, (double)0.1);
 
@@ -32,18 +31,20 @@ INA219Activity::INA219Activity(ros::NodeHandle &_nh, ros::NodeHandle &_nh_priv) 
 bool INA219Activity::reset() {
     int i = 0;
 
-    // __bswap_16 because INA219 is big endian
+    // INA219 is big endian
+    i2c_smbus_write_word_data(file, INA219_REG_CONFIGURATION, htobe16(CONFIG_RESET));
+    ros::Duration(0.10).sleep();
 
-    _i2c_smbus_write_word_data(file, INA219_REG_CALIBRATION, __bswap_16(param_calibration));
-    ros::Duration(0.500).sleep();
+    i2c_smbus_write_word_data(file, INA219_REG_CALIBRATION, htobe16(param_calibration));
+    ros::Duration(0.10).sleep();
 
-    _i2c_smbus_write_word_data(file, INA219_REG_CONFIGURATION, __bswap_16(
+    i2c_smbus_write_word_data(file, INA219_REG_CONFIGURATION, htobe16(
             INA219_CONFIG_BVOLTAGERANGE_32V |
             INA219_CONFIG_GAIN_8_320MV |
             INA219_CONFIG_BADCRES_12BIT |
             INA219_CONFIG_SADCRES_12BIT_128S_69MS |
             INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS));
-    ros::Duration(0.500).sleep();
+    ros::Duration(0.10).sleep();
 
     return true;
 }
@@ -81,29 +82,29 @@ bool INA219Activity::spinOnce() {
 
     ros::Time time = ros::Time::now();
 
-    // __bswap_16 because INA219 is big endian
+    // INA219 is big endian
 
     if(pub_voltage_shunt) {
         std_msgs::Float32 msg_voltage_shunt;
-        msg_voltage_shunt.data = 0.00001 * __bswap_16(_i2c_smbus_read_word_data(file, INA219_REG_SHUNT_VOLTAGE));
+        msg_voltage_shunt.data = 0.00001 * (int16_t)be16toh(i2c_smbus_read_word_data(file, INA219_REG_SHUNT_VOLTAGE));
         pub_voltage_shunt.publish(msg_voltage_shunt);
     }
 
     if(pub_voltage_bus) {
         std_msgs::Float32 msg_voltage_bus;
-        msg_voltage_bus.data = 0.004 * ((int16_t)__bswap_16(_i2c_smbus_read_word_data(file, INA219_REG_BUS_VOLTAGE)) >> 3);
+        msg_voltage_bus.data = 0.004 * (((uint16_t)be16toh(i2c_smbus_read_word_data(file, INA219_REG_BUS_VOLTAGE))) >> 3);
         pub_voltage_bus.publish(msg_voltage_bus);
     }
 
     if(pub_current) {
         std_msgs::Float32 msg_current;
-        msg_current.data = current_lsb * (int16_t)__bswap_16(_i2c_smbus_read_word_data(file, INA219_REG_CURRENT));
+        msg_current.data = current_lsb * (int16_t)be16toh(i2c_smbus_read_word_data(file, INA219_REG_CURRENT));
         pub_current.publish(msg_current);
     }
 
     if(pub_power) {
         std_msgs::Float32 msg_power;
-        msg_power.data = power_lsb * __bswap_16(_i2c_smbus_read_word_data(file, INA219_REG_POWER));
+        msg_power.data = power_lsb * be16toh(i2c_smbus_read_word_data(file, INA219_REG_POWER));
         pub_power.publish(msg_power);
     }
 

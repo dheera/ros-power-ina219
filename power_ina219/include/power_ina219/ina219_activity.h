@@ -7,13 +7,13 @@
 #include <cstring>
 #include <sys/ioctl.h>
 #include <fcntl.h>
-#include <byteswap.h>
-
+#include <endian.h>
 #include <std_msgs/Float32.h>
 #include <std_msgs/Int32.h>
-
+extern "C"{
 #include <linux/i2c-dev.h>
-#include <smbus_functions.h>
+#include <i2c/smbus.h>
+}
 
 #define INA219_ADDRESS                         0x40
 
@@ -78,7 +78,7 @@ class INA219Activity {
 
   private:
     bool reset();
-
+    
     // class variables
     uint32_t seq = 0;
     int file;
