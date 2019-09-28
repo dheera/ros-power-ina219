@@ -68,8 +68,8 @@ bool INA219Activity::start() {
         return false;
     }
     msg_battery_state.present = true;
-    msg_battery_state.power_supply_status = sensor_msgs::BatteryState::POWER_SUPPLY_STATUS_DISCHARGING;
-    msg_battery_state.power_supply_health = sensor_msgs::BatteryState::POWER_SUPPLY_HEALTH_GOOD;
+    msg_battery_state.power_supply_status = sensor_msgs::BatteryState::POWER_SUPPLY_STATUS_UNKNOWN;
+    msg_battery_state.power_supply_health = sensor_msgs::BatteryState::POWER_SUPPLY_HEALTH_UNKNOWN;
     msg_battery_state.power_supply_technology = param_battery_technology;
     msg_battery_state.cell_voltage.resize(param_cells, nan(""));
     return true;
@@ -77,16 +77,26 @@ bool INA219Activity::start() {
 
 bool INA219Activity::spinOnce() {
     ros::spinOnce();
-
+    static ros::Time previous_time = ros::Time::now();
+    static uint32_t seq = 0;
     ros::Time time = ros::Time::now();
 
     // INA219 is big endian
+    msg_battery_state.header.stamp = time;
+    msg_battery_state.header.seq = seq++;    
     msg_battery_state.voltage  = 0.004 * (((uint16_t)be16toh(i2c_smbus_read_word_data(file, INA219_REG_BUS_VOLTAGE))) >> 3);
     msg_battery_state.current = -1.0 * current_lsb * (int16_t)be16toh(i2c_smbus_read_word_data(file, INA219_REG_CURRENT));
     msg_battery_state.capacity = param_capacity < 0 ? nan("") : param_capacity;
     msg_battery_state.design_capacity = msg_battery_state.capacity;
     msg_battery_state.charge = nan("");
     msg_battery_state.percentage = nan("");
+
+    double duration_hours = (time - previous_time).toSec() / 3600.0;
+    previous_time = time;
+    discharged -= msg_battery_state.current * 1000 * duration_hours;
+    if(param_capacity > 0){
+        msg_battery_state.charge = param_capacity - discharged;
+    }
 
     pub_battery_state.publish(msg_battery_state);
     return true;    
