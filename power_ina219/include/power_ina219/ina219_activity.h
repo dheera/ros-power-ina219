@@ -3,13 +3,16 @@
 
 #include <ros/ros.h>
 #include <cstdlib>
+#include <cmath>
 #include <cerrno>
 #include <cstring>
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <endian.h>
+#include <vector>
 #include <std_msgs/Float32.h>
 #include <std_msgs/Int32.h>
+#include <sensor_msgs/BatteryState.h>
 extern "C"{
 #include <linux/i2c-dev.h>
 #include <i2c/smbus.h>
@@ -78,7 +81,6 @@ class INA219Activity {
 
   private:
     bool reset();
-    
     // class variables
     uint32_t seq = 0;
     int file;
@@ -95,19 +97,15 @@ class INA219Activity {
     int param_address;
     int param_rate;
     int param_calibration;
+    int param_battery_technology;
+    double discharged;
     double param_rshunt;
-    bool param_publish_voltage_bus;
-    bool param_publish_voltage_shunt;
-    bool param_publish_power;
-    bool param_publish_current;
+    int param_cells;
+    double param_capacity;
 
     // ROS publishers
-
-    // ROS subscribers
-    ros::Publisher pub_voltage_bus;
-    ros::Publisher pub_voltage_shunt;
-    ros::Publisher pub_power;
-    ros::Publisher pub_current;
+    sensor_msgs::BatteryState msg_battery_state;
+    ros::Publisher pub_battery_state;
 
     // ROS services
 };

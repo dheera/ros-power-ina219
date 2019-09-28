@@ -11,15 +11,14 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 
 add_executable(ina219_node src/ina219_activity.cpp src/ina219_node.cpp)
 
-include_directories(${catkin_INCLUDE_DIRS})
-
 target_link_libraries(ina219_node
     ${catkin_LIBRARIES}
     i2c
 )
+
 install(TARGETS ina219_node
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
