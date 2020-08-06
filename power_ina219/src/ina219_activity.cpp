@@ -24,7 +24,7 @@ INA219Activity::INA219Activity(ros::NodeHandle &_nh, ros::NodeHandle &_nh_priv) 
     nh_priv.param(param_name + "capacity", param_capacity, (double)nan(""));
 
 
-
+    discharged = 0.0d;
     current_lsb = 0.04096 / (param_calibration * param_rshunt); // from page 12 of INA219 datasheet
     power_lsb = 20 * current_lsb; // from page 12 of INA219 datasheet
 }
